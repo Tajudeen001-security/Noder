@@ -1,0 +1,10 @@
+{
+  "name": "noder-theme-dark-plus",
+  "displayName": "Dark+ Theme",
+  "version": "1.0.0",
+  "main": "extension.js",
+  "categories": ["Themes"],
+  "contributes": {
+    "commands": [{ "command": "noder-theme-dark-plus.apply", "title": "Apply Dark+ Theme", "category": "Theme" }]
+  }
+}
