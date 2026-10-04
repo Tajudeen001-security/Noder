@@ -1,0 +1,43 @@
+name: Build Windows App
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip pillow
+      - run: python scripts/generate-icons.py
+      - run: npm install --no-audit --no-fund
+        env:
+          npm_config_optional: true
+      - run: npx vite build
+        env:
+          NODE_ENV: production
+      - run: npx electron-builder --win --x64 --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: Noder-Windows-${{ github.sha }}
+          path: |
+            release/**/*.exe
+            release/**/*.yml
+          if-no-files-found: warn
+          retention-days: 30
